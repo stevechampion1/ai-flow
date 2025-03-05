@@ -1,0 +1,15 @@
+# kubernetes/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-flow-backend-service # Service 名称，自定义，全局唯一
+spec:
+  selector: # 选择器，Service 路由流量到哪些 Pods
+    app: ai-flow-backend # 匹配具有 app: ai-flow-backend 标签的 Pods (与 Deployment 的 selector.matchLabels 匹配)
+  ports:
+    - port: 80 # Service 端口，集群内部或外部访问 Service 的端口 (例如 80 或 443)
+      targetPort: 8000 # 目标端口，Service 将流量转发到 Pod 的哪个端口 (容器端口 8000)
+      protocol: TCP # 协议，通常使用 TCP
+  type: LoadBalancer # Service 类型，LoadBalancer 类型用于在云环境中暴露服务到公网 (例如 AWS, Azure, GCP)
+  # type: ClusterIP #  !!!  如果只在集群内部访问，可以使用 ClusterIP 类型 (默认类型)  !!!
+  # type: NodePort #  !!!  如果需要在集群外部通过 NodePort 访问，可以使用 NodePort 类型 (适用于本地测试或没有 LoadBalancer 的环境)  !!!

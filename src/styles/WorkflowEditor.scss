@@ -1,0 +1,20 @@
+// src/styles/WorkflowEditor.scss
+
+.workflow-editor-container {
+    border: 1px solid #ccc; /* 边框 */
+    padding: 20px;         /* 内边距 */
+    border-radius: 5px;     /* 圆角 */
+    background-color: #fff; /* 背景颜色 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+  
+    h2 {
+      color: #0056b3; /* 标题颜色 */
+      margin-bottom: 15px; /* 标题下外边距 */
+    }
+  
+    p {
+      color: #666; /* 段落文本颜色 */
+    }
+  
+    /* 您可以在这里添加更多 WorkflowEditor 组件内部的样式，例如可视化编辑器画布、工具栏、节点样式等 */
+  }

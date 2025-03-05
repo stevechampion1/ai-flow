@@ -1,0 +1,38 @@
+version: "3.9"  # Docker Compose 文件版本，建议使用 3.9 或更高版本
+
+services:
+  backend: # 后端应用服务
+    build: . # 使用当前目录下的 Dockerfile 构建镜像 (与 docker-compose.yml 同目录)
+    ports:
+      - "8000:8000" # 宿主机 8000 端口映射到容器 8000 端口，用于访问 FastAPI API
+    volumes:
+      - .:/app # 将当前目录挂载到容器 /app 目录，实现代码热重载 (开发环境)
+    environment:
+      DATABASE_URL: "postgresql://aiflow:aiflow_password@db:5432/aiflow_db" # PostgreSQL 数据库连接 URL
+      REDIS_URL: "redis://redis:6379/0" # Redis 连接 URL
+      OPENAI_API_KEY: ${OPENAI_API_KEY} # OpenAI API 密钥 (从宿主机环境变量读取)
+    depends_on:
+      - db # 依赖于 db 服务 (PostgreSQL)
+      - redis # 依赖于 redis 服务
+
+  db: # PostgreSQL 数据库服务
+    image: postgres:15-alpine # 使用官方 PostgreSQL 15-alpine 镜像 (Alpine Linux 镜像体积小巧)
+    ports:
+      - "5432:5432" # 宿主机 5432 端口映射到容器 5432 端口，用于本地连接 pgAdmin 或 psql
+    volumes:
+      - db_data:/var/lib/postgresql/data # 数据持久化卷，将数据目录挂载到宿主机 db_data 卷
+    environment:
+      POSTGRES_USER: aiflow # PostgreSQL 用户名
+      POSTGRES_PASSWORD: aiflow_password # PostgreSQL 密码
+      POSTGRES_DB: aiflow_db # PostgreSQL 数据库名称
+
+  redis: # Redis 缓存服务
+    image: redis:7-alpine # 使用官方 Redis 7-alpine 镜像 (Alpine Linux 镜像体积小巧)
+    ports:
+      - "6379:6379" # 宿主机 6379 端口映射到容器 6379 端口，用于本地连接 Redis 客户端
+    volumes:
+      - redis_data:/data # 数据持久化卷，将数据目录挂载到宿主机 redis_data 卷
+
+volumes: # 定义数据卷
+  db_data: # PostgreSQL 数据卷
+  redis_data: # Redis 数据卷

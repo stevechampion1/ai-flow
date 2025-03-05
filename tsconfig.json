@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es5", // 示例其他选项
+    "module": "commonjs", // 示例其他选项
+    "strict": true, // 示例其他选项
+    "jsx": "react",
+    "esModuleInterop": true
+  },
+  "include": ["src"], // 示例其他选项
+  "exclude": ["node_modules"] // 示例其他选项
+}

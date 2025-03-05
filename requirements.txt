@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+openai
+huggingface-hub
+transformers
+psycopg2-binary
+redis
