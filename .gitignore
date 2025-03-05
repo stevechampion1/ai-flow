@@ -1,0 +1,126 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# pyenv-virtualenv / virtualenv
+.venv/
+venv/
+ENV/
+env/
+*.virtualenv/
+*.virtualenv_info
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# Environments
+.env
+.venv
+venv
+env
+ENV
+environment.yml
+environment.condarc
+conda-meta/
+# virtualenv:
+*.virtualenv
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environments (VS Code)
+.vscode/.ipynb_checkpoints/
+.vscode/extensions/
+.vscode/launch.json
+.vscode/settings.json
+.vscode/tasks.json
+
+# Unit test / coverage
+.coverage
+.pytest_cache
+nosetests.xml
+doctest.xml
+pytest.xml
+junit/
+.nyc_output
+.tox
+.nox
+coverage_html_report/
+htmlcov/
+.pytest_cache
+.pytest_log*
+python-build-env/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+__pycache__/
+.DS_Store
+*$py.class
+
+# Sphinx documentation
+_build/html/
+_build/doctrees/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb.orig
+
+# IPython
+ipython_config.py
+profile_default/
+ipython_kernel_history.sqlite
+
+# pyinstaller/py2app
+build
+dist
+
+# node_modules
+node_modules/
+
+# 日志文件
+*.log
+
+# Docker related
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+.dockerignore
