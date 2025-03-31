@@ -1,20 +1,237 @@
 // src/styles/WorkflowEditor.scss
 
 .workflow-editor-container {
-    border: 1px solid #ccc; /* 边框 */
-    padding: 20px;         /* 内边距 */
-    border-radius: 5px;     /* 圆角 */
-    background-color: #fff; /* 背景颜色 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
-  
-    h2 {
-      color: #0056b3; /* 标题颜色 */
-      margin-bottom: 15px; /* 标题下外边距 */
-    }
-  
-    p {
-      color: #666; /* 段落文本颜色 */
-    }
-  
-    /* 您可以在这里添加更多 WorkflowEditor 组件内部的样式，例如可视化编辑器画布、工具栏、节点样式等 */
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+}
+
+/* 左侧画布区域 */
+.canvas-container {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  background-color: #fff;
+}
+
+/* 节点样式 */
+.canvas-item {
+  position: absolute;
+  border: 1px solid #000;
+  padding: 10px;
+  background-color: #fff;
+  cursor: pointer;
+  box-sizing: border-box;
+
+  &.selected {
+    border: 2px solid blue;
   }
+}
+
+/* 端口样式 */
+.ports {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 让事件穿透到 canvas-item */
+
+  .input-ports,
+  .output-ports {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; // 使端口均匀分布
+    height: 100%;
+    padding: 5px 0; // 垂直方向添加内边距
+  }
+}
+
+.port {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; /* 圆形端口 */
+  background-color: #ddd;
+  border: 1px solid #999;
+  cursor: pointer;
+  pointer-events: auto; /* 恢复端口的事件响应 */
+  box-sizing: border-box; /* 避免边框影响尺寸 */
+  margin: 2px 0; // 垂直方向留出间距
+
+  &.input-port {
+    background-color: lightgreen;
+    border-color: green;
+  }
+
+  &.output-port {
+    background-color: lightblue;
+    border-color: blue;
+  }
+
+  &:hover {
+    transform: scale(1.2); /* 放大效果 */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* 添加阴影 */
+  }
+  &.connected {
+    background-color: #666;
+    border-color: #333;
+  }
+}
+
+/* 连线样式 */
+.connections-svg {
+  pointer-events: none; /* 使 SVG 不响应鼠标事件 */
+  line {
+    stroke: #34495e;
+    stroke-width: 2;
+    transition: stroke 0.2s ease; /* 添加过渡效果 */
+    &[stroke="red"] {
+      stroke-dasharray: 5, 5;
+    }
+    &:hover {
+      stroke: #007bff;
+    }
+  }
+  path {
+    stroke: #333; /* 默认连接线颜色 */
+    stroke-width: 2px; /* 线条粗细 */
+    fill: none; /* 无填充 */
+    transition: stroke 0.2s ease; /* 平滑过渡 */
+    pointer-events: auto; /* 允许点击删除 */
+    &:hover {
+      stroke: #007bff; /* 悬停时变蓝色 */
+    }
+  }
+}
+
+/* 提示文字样式 */
+.canvas-hint {
+  padding: 10px;
+  font-style: italic;
+}
+
+/* 右侧配置面板区域 */
+.config-panel-container {
+  width: 300px;
+  border-left: 1px solid #ccc;
+  position: relative;
+  background-color: #f9f9f9;
+  overflow-y: auto;
+}
+
+/* Toolbar 和 ConfigPanel 的原有样式 */
+.toolbar {
+  padding: 10px;
+  background-color: #f0f3f5;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  button {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      background-color: #e0e0e0;
+      border-color: #999;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(116, 185, 255, 0.3);
+    }
+  }
+}
+
+.config-panel {
+  padding: 15px;
+  background-color: #f9f9f9;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: #777;
+  }
+
+  .config-item {
+    margin-bottom: 10px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9rem;
+
+      &:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+    }
+  }
+}
+
+.execution-result {
+  margin-top: 10px;
+  padding: 5px;
+  border: 1px dashed #ccc;
+  font-size: 0.85rem;
+  color: #555;
+  word-break: break-all; /* 处理长文本 */
+}
+
+/* 加载动画样式 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* 半透明灰色背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 确保在最上层 */
+}
+
+/* 错误提示样式 (覆盖 react-toastify 默认样式) */
+.Toastify__toast--error {
+  background: #d32f2f; /* 红色背景 */
+  color: white; /* 白色文字 */
+  font-size: 0.9rem; /* 字体大小 */
+  border-radius: 4px; /* 圆角 */
+}

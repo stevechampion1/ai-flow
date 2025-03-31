@@ -1,0 +1,25 @@
+// backend/tsconfig.json
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "NodeNext", // 修改这里，与 moduleResolution 保持一致
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "./dist",
+        "rootDir": "../", // 保持你提供的当前值
+        "moduleResolution": "NodeNext", // 保持 NodeNext
+        "allowImportingTsExtensions": true,
+        "noEmit": true
+    },
+    "ts-node": {
+        "esm": true,
+        "experimentalResolver": true
+    },
+    "include": [
+        "./**/*.ts", // backend 下的所有 .ts 文件
+        "../types/**/*.ts" // types 下的所有 .ts 文件
+    ],
+    "exclude": ["node_modules"]
+}

@@ -3,17 +3,29 @@
   "version": "1.0.0",
   "description": "AI Flow Frontend",
   "main": "index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.18",
+    "@mui/material": "^5.14.18",
+    "axios": "^1.6.2",
+    "cors": "^2.8.5",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.20.0",
+    "react-spinners": "^0.15.0",
+    "react-toastify": "^11.0.5",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/cors": "^2.8.17",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.61",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "react-scripts": "5.0.1",
@@ -32,5 +44,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   }
 }

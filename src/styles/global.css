@@ -1,29 +1,37 @@
-/* src/styles/index.css */
+/* src/styles/global.css */
 
 /* 全局样式重置 (Basic CSS Reset) */
 body, html {
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif; /* 设置默认字体 */
-    background-color: #f0f2f5; /* 设置默认背景颜色 */
-    color: #333; /* 设置默认文本颜色 */
-  }
-  
-  /* 全局链接样式 */
-  a {
-    color: #007bff; /* 设置链接颜色 */
-    text-decoration: none; /* 移除默认下划线 */
-  }
-  
-  a:hover {
-    text-decoration: underline; /* 鼠标悬停时显示下划线 */
-  }
-  
-  /* 全局容器样式 (示例) */
-  .container {
-    max-width: 1200px; /* 设置最大宽度 */
-    margin: 0 auto;    /* 水平居中 */
-    padding: 20px;     /* 内边距 */
-  }
-  
-  /* 更多全局样式可以在这里添加，例如按钮样式、表单样式、通用布局样式等 */
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif; /* 设置默认字体 */
+  background-color: #f0f2f5; /* 设置默认背景颜色 */
+  color: #333; /* 设置默认文本颜色 */
+}
+
+/* 全局链接样式 */
+a {
+  color: #007bff; /* 设置链接颜色 */
+  text-decoration: none; /* 移除默认下划线 */
+}
+
+a:hover {
+  text-decoration: underline; /* 鼠标悬停时显示下划线 */
+}
+
+/* 全局容器样式 (示例) */
+.container {
+  max-width: 1200px; /* 设置最大宽度 */
+  margin: 0 auto;    /* 水平居中 */
+  padding: 20px;     /* 内边距 */
+}
+
+/* 全局变量 (示例) */
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --light-gray: #f8f9fa;
+  --dark-gray: #343a40;
+}

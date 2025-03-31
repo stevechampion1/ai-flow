@@ -1,11 +1,24 @@
 {
   "compilerOptions": {
-    "target": "es5", // 示例其他选项
-    "module": "commonjs", // 示例其他选项
-    "strict": true, // 示例其他选项
-    "jsx": "react",
-    "esModuleInterop": true
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["src"], // 示例其他选项
-  "exclude": ["node_modules"] // 示例其他选项
+  "include": ["src/**/*", "types/**/*"] // 添加 types/
 }

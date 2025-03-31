@@ -1,0 +1,64 @@
+// src/styles/AIModuleLibrary.scss
+
+.ai-module-library-container {
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.25rem; // 稍微增大标题字体
+    font-weight: 600;    // 加粗标题
+  }
+}
+
+.ai-module-library-search {
+  margin-bottom: 15px;
+
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;       // 增加内边距，使搜索框更大
+    border: 1px solid #ddd;
+    border-radius: 4px;       // 更圆润的边角
+    font-size: 1rem;
+    outline: none;            // 移除默认的 focus 边框
+    transition: border-color 0.2s ease; // 添加边框颜色过渡效果
+
+    &:focus {               // 聚焦时样式
+      border-color: #74b9ff; // 改变边框颜色
+      box-shadow: 0 0 0 2px rgba(116, 185, 255, 0.3); // 添加外发光效果
+    }
+  }
+}
+
+.ai-module-list {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    padding: 12px 15px;       // 增加列表项内边距
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s ease; // 添加背景颜色过渡效果
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: #f5f5f5; // 更浅的悬停背景颜色
+    }
+
+    &.dragging {          //  !!! 拖动时的样式 !!!
+       opacity: 0.5;
+       background-color: #dff9fb;
+     }
+  }
+}

@@ -1,18 +1,57 @@
 // src/components/AIModuleLibrary.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import './../styles/AIModuleLibrary.scss';
+import { fetchAIModules } from '../api/workflowApi';
+import { AIModule } from '../../types/ai_module_models'; // 更新路径
+import AIModuleItem from './AIModuleItem';
 
 interface AIModuleLibraryProps {
-  // 您可以在这里定义 AIModuleLibrary 组件的 props 类型 (例如：onSelectModule: (moduleId: string) => void;)
+  // onSelectModule?: (moduleId: string) => void; // 可选
 }
 
 const AIModuleLibrary: React.FC<AIModuleLibraryProps> = () => {
-  // AIModuleLibrary 组件的逻辑和状态 (目前为空)
+  const [moduleList, setModuleList] = useState<AIModule[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  useEffect(() => {
+    fetchAIModules()
+      .then((data) => {
+        setModuleList(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching AI modules:', error);
+      });
+  }, []);
+
+  const filteredModules = moduleList.filter((module) => {
+    const searchLower = searchTerm.toLowerCase();
+    const nameLower = module.name.toLowerCase();
+    const descriptionLower = module.description ? module.description.toLowerCase() : '';
+    return nameLower.includes(searchLower) || descriptionLower.includes(searchLower);
+  });
 
   return (
-    <div>
+    <div className="ai-module-library-container">
       <h3>AI Module Library</h3>
-      {/* 在这里添加 AI 模块库的 UI 元素，例如模块列表、搜索框、模块分类等 */}
-      <p>AI 模块库组件占位符，后续将在此处实现 AI 模块库的功能，用于展示和选择可用的 AI 模块。</p>
+      <div className="ai-module-library-search">
+        <input
+          type="text"
+          placeholder="Search AI Modules..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+      <div className="ai-module-list">
+        <ul>
+          {filteredModules.map((module) => (
+            <AIModuleItem key={module.id} module={module} />
+          ))}
+          {filteredModules.length === 0 && searchTerm !== '' && (
+            <li>No modules found matching "{searchTerm}"</li>
+          )}
+          {moduleList.length === 0 && searchTerm === '' && <li>Loading modules...</li>}
+        </ul>
+      </div>
     </div>
   );
 };
