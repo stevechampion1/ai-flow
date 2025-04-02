@@ -11,6 +11,7 @@ export interface ConfigSchemaItem {
   step?: number;
   placeholder?: string;
   description?: string;
+  rows?: number; // 添加 rows 属性，可选，用于 textarea
 }
 
 export interface Port {
