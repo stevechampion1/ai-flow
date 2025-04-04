@@ -2,9 +2,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { DndProvider, useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { ToastContainer, toast, ToastPosition } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './WorkflowEditor.css';
+import '../../styles/WorkflowEditor.scss'; // 修正导入路径
 
 // --- Import Fixes & Inline Type Definitions ---
 import { AIModule, Port, ConfigSchemaItem } from '../../../types/ai_module_models';
@@ -120,7 +120,7 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
     setCanRedo(false);
   }, [history, historyIndex]);
 
-  const [, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: [ItemTypes.MODULE, ItemTypes.CANVAS_ITEM],
     drop: (item: AIModule | CanvasItemDragObject, monitor: DropTargetMonitor) => {
       const delta = monitor.getDifferenceFromInitialOffset();
@@ -136,7 +136,7 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
       if (monitor.getItemType() === ItemTypes.MODULE) {
         const module = item as AIModule;
         const newItem: CanvasItem = {
-          id: `${module.id}-${Date.now()}`, // 修正 Histor.now() 为 Date.now()
+          id: `${module.id}-${Date.now()}`,
           moduleId: module.id,
           name: module.name,
           config: module.config || {},
@@ -360,8 +360,10 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
           setConnections(prevConnections => {
             const newConnections = [...prevConnections, newConnection];
             setCanvasItems(prevItems => {
-              saveHistory(prevItems, newConnections);
-              return prevItems;
+              // 明确定义 newItems，避免未定义变量
+              const newItems = [...prevItems]; // 这里不修改 prevItems，仅用于保存历史
+              saveHistory(newItems, newConnections);
+              return newItems; // 返回 newItems
             });
             return newConnections;
           });
@@ -429,11 +431,11 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const targetPos = {
       x: mousePosition.x - canvasRect.left,
-      y: mousePosition.y - canvasRect.top
+      y: mousePosition.y - canvasRect.top,
     };
 
     if (isNaN(sourcePos.x) || isNaN(sourcePos.y) || isNaN(targetPos.x) || isNaN(targetPos.y)) {
-      console.error("[WorkflowEditor][renderTemporaryConnection] Invalid coordinates!", { sourcePos, targetPos });
+      console.error("[renderTemporaryConnection] Invalid coordinates calculated!");
       return null;
     }
 
@@ -452,84 +454,41 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
   };
 
   const handleItemClick = useCallback((itemId: string) => {
-    console.log(`[WorkflowEditor] Item clicked: ${itemId}`);
+    console.log("[WorkflowEditor] Item clicked:", itemId);
     setSelectedItemId(itemId);
   }, []);
 
-  const handleConfigChange = useCallback((itemId: string, newConfig: any) => {
-    console.log(`[WorkflowEditor] Config changed for item ${itemId}:`, newConfig);
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, itemId: string) => {
+    event.preventDefault();
+    console.log("[WorkflowEditor] Context menu opened for item:", itemId);
+    // Add context menu logic here if needed
+  }, []);
+
+  const handleConfigChange = useCallback((itemId: string, newConfig: Record<string, any>) => {
+    console.log("[WorkflowEditor] Config changed for item:", { itemId, newConfig });
     setCanvasItems(prevItems => {
       const newItems = prevItems.map(item =>
         item.id === itemId ? { ...item, config: newConfig } : item
       );
-      const oldItem = prevItems.find(i => i.id === itemId);
-      if (JSON.stringify(oldItem?.config) !== JSON.stringify(newConfig)) {
-        saveHistory(newItems, connections);
-      }
+      saveHistory(newItems, connections);
       return newItems;
     });
   }, [connections, saveHistory]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>, itemId: string) => {
-    event.preventDefault();
-    console.log(`[WorkflowEditor] Context menu on item ${itemId}`);
-    setSelectedItemId(itemId);
-    toast.info(`Right-clicked on ${itemId}. Implement context menu.`);
-  }, []);
-
-  const deleteSelectedItem = useCallback(() => {
-    if (selectedItemId) {
-      console.log(`[WorkflowEditor] Deleting item ${selectedItemId} and its connections.`);
-      setCanvasItems(prevItems => {
-        const itemsToDelete = new Set([selectedItemId]);
-        const newItems = prevItems.filter(item => !itemsToDelete.has(item.id));
-
-        setConnections(prevConns => {
-          const newConnections = prevConns.filter(conn =>
-            !itemsToDelete.has(conn.sourceItemId) && !itemsToDelete.has(conn.targetItemId)
-          );
-          saveHistory(newItems, newConnections);
-          return newConnections;
-        });
-
-        setSelectedItemId(null);
-        toast.success("Item deleted.");
-        return newItems;
-      });
-    }
-  }, [selectedItemId, saveHistory]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedItemId) {
-        const activeElement = document.activeElement;
-        if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA' && activeElement?.tagName !== 'SELECT') {
-          deleteSelectedItem();
-        }
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedItemId, deleteSelectedItem]);
 
   return (
     <div className="workflow-editor-container">
       <div
         ref={canvasRef}
-        className={`canvas-container ${isLoading ? 'loading' : ''}`}
+        className={`canvas-container ${isOver ? 'is-over' : ''}`}
         onClick={e => {
           if (e.target === canvasRef.current) {
             setSelectedItemId(null);
-            if (connectingPort) {
-              setConnectingPort(null);
-              setMousePosition(null);
-            }
+          }
+          if (connectingPort) {
+            setConnectingPort(null);
           }
         }}
         onMouseUp={handleCanvasMouseUp}
-        style={{ position: 'relative', width: '100%', height: '100%', border: '1px solid #ccc', overflow: 'hidden' }}
       >
         <Toolbar
           onSave={handleSave}
@@ -542,40 +501,78 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
           isLoading={isLoading}
         />
         {canvasItems.map((item: CanvasItem) => (
-          <CanvasItemComponent
+          <div
             key={item.id}
-            item={item}
-            isSelected={selectedItemId === item.id}
-            onItemClick={handleItemClick}
-            onContextMenu={handleContextMenu}
-            onPortMouseDown={handlePortMouseDown}
-            onPortMouseUp={handlePortMouseUp}
-          />
+            data-id={item.id}
+            className={`canvas-item ${selectedItemId === item.id ? 'selected' : ''}`}
+            style={{ left: item.position.x, top: item.position.y }}
+            onClick={e => {
+              e.stopPropagation();
+              handleItemClick(item.id);
+            }}
+            onContextMenu={(e) => handleContextMenu(e, item.id)}
+          >
+            <div className="module-header">{item.name}</div>
+            <div className="ports">
+              <div className="input-ports">
+                {item.inputs?.map((port: Port) => (
+                  <div
+                    key={port.id}
+                    className="port input-port"
+                    title={`Input: ${port.id} (${port.type})`}
+                    data-port-id={port.id}
+                    data-item-id={item.id}
+                    data-direction="input"
+                    data-port-type={port.type}
+                    data-port="true"
+                    onMouseDown={e => handlePortMouseDown(e, item.id, port.id, 'input', port.type)}
+                    onMouseUp={e => handlePortMouseUp(e, item.id, port.id, 'input', port.type)}
+                  ></div>
+                ))}
+              </div>
+              <div className="output-ports">
+                {item.outputs?.map((port: Port) => (
+                  <div
+                    key={port.id}
+                    className="port output-port"
+                    title={`Output: ${port.id} (${port.type})`}
+                    data-port-id={port.id}
+                    data-item-id={item.id}
+                    data-direction="output"
+                    data-port-type={port.type}
+                    data-port="true"
+                    onMouseDown={e => handlePortMouseDown(e, item.id, port.id, 'output', port.type)}
+                    onMouseUp={e => handlePortMouseUp(e, item.id, port.id, 'output', port.type)}
+                  ></div>
+                ))}
+              </div>
+            </div>
+            {item.executionResult && (
+              <div className="execution-result" title={JSON.stringify(item.executionResult)}>
+                Result: {typeof item.executionResult === 'string' ? item.executionResult.substring(0, 10) + '...' : 'Done'}
+              </div>
+            )}
+          </div>
         ))}
-        {!canvasItems.length && !isLoading && (<div className="canvas-hint">Drag modules here...</div>)}
-        <svg className="connections-svg" width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', zIndex: 0 }}>
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
-            </marker>
-          </defs>
+        <svg className="connection-svg" width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
           {renderConnections()}
           {renderTemporaryConnection()}
         </svg>
-        {isLoading && <div className="loading-overlay"><span>Loading...</span></div>}
+        {!canvasItems.length && !isLoading && (
+          <div className="canvas-hint" style={{ pointerEvents: 'none' }}>
+            Drag modules here.
+          </div>
+        )}
       </div>
-
       <div className="config-panel-container" onClick={e => e.stopPropagation()}>
         <ConfigPanel
-          key={selectedItemId || 'no-item'}
           selectedItemId={selectedItemId}
           canvasItems={canvasItems}
           onConfigChange={handleConfigChange}
         />
       </div>
-
       <ToastContainer
-        position={"bottom-right" as ToastPosition}
+        position="bottom-right"
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
@@ -589,100 +586,4 @@ const WorkflowEditor: React.FC<WorkflowEditorProps> = ({ initialState }) => {
   );
 };
 
-interface CanvasItemComponentProps {
-  item: CanvasItem;
-  isSelected: boolean;
-  onItemClick: (id: string) => void;
-  onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: string) => void;
-  onPortMouseDown: (event: React.MouseEvent<HTMLDivElement>, itemId: string, portId: string, direction: 'input' | 'output', portType: string) => void;
-  onPortMouseUp: (event: React.MouseEvent<HTMLDivElement>, itemId: string, portId: string, direction: 'input' | 'output', portType: string) => void;
-}
-
-const CanvasItemComponent: React.FC<CanvasItemComponentProps> = ({
-  item, isSelected, onItemClick, onContextMenu, onPortMouseDown, onPortMouseUp,
-}) => {
-  const itemRef = useRef<HTMLDivElement>(null);
-
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: ItemTypes.CANVAS_ITEM,
-    item: { id: item.id, type: ItemTypes.CANVAS_ITEM, x: item.position.x, y: item.position.y },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }), [item.id, item.position.x, item.position.y]);
-
-  drag(itemRef);
-
-  return (
-    <div
-      ref={itemRef}
-      data-id={item.id}
-      className={`canvas-item ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''}`}
-      style={{
-        position: 'absolute',
-        left: `${item.position.x}px`,
-        top: `${item.position.y}px`,
-        opacity: isDragging ? 0.5 : 1,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        zIndex: isSelected || isDragging ? 10 : 1,
-        border: '1px solid #aaa',
-        padding: '5px',
-        backgroundColor: 'white',
-        minWidth: '150px'
-      }}
-      onClick={e => { e.stopPropagation(); onItemClick(item.id); }}
-      onContextMenu={(e) => onContextMenu(e, item.id)}
-    >
-      <div className="module-header" style={{ fontWeight: 'bold', marginBottom: '5px', textAlign: 'center' }}>{item.name}</div>
-      <div className="ports" style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div className="input-ports">
-          {item.inputs?.map((port: Port) => (
-            <div
-              key={port.id}
-              className="port input-port"
-              title={`Input: ${port.label || port.id} (${port.type})`}
-              data-port-id={port.id}
-              data-item-id={item.id}
-              data-direction="input"
-              data-port-type={port.type}
-              data-port="true"
-              style={{ width: '10px', height: '10px', backgroundColor: 'blue', borderRadius: '50%', marginBottom: '5px' }}
-              onMouseDown={e => onPortMouseDown(e, item.id, port.id, 'input', port.type)}
-              onMouseUp={e => onPortMouseUp(e, item.id, port.id, 'input', port.type)}
-            ></div>
-          ))}
-        </div>
-        <div className="output-ports">
-          {item.outputs?.map((port: Port) => (
-            <div
-              key={port.id}
-              className="port output-port"
-              title={`Output: ${port.label || port.id} (${port.type})`}
-              data-port-id={port.id}
-              data-item-id={item.id}
-              data-direction="output"
-              data-port-type={port.type}
-              data-port="true"
-              style={{ width: '10px', height: '10px', backgroundColor: 'red', borderRadius: '50%', marginBottom: '5px' }}
-              onMouseDown={e => onPortMouseDown(e, item.id, port.id, 'output', port.type)}
-              onMouseUp={e => onPortMouseUp(e, item.id, port.id, 'output', port.type)}
-            ></div>
-          ))}
-        </div>
-      </div>
-      {item.executionResult && (
-        <div className="execution-result" title={JSON.stringify(item.executionResult)} style={{ marginTop: '5px', fontSize: '0.8em', color: 'green' }}>
-          Result: {typeof item.executionResult === 'string' ? item.executionResult.substring(0, 10) + '...' : 'Done'}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const WorkflowEditorWrapper: React.FC<WorkflowEditorProps> = (props) => (
-  <DndProvider backend={HTML5Backend}>
-    <WorkflowEditor {...props} />
-  </DndProvider>
-);
-
-export default WorkflowEditorWrapper;
+export default WorkflowEditor;

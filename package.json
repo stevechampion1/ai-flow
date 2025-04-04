@@ -17,6 +17,7 @@
     "react-router-dom": "^6.20.0",
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
+    "sass": "^1.86.2",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

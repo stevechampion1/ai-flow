@@ -2,6 +2,7 @@
 import { CanvasItem, Connection } from '../components/WorkflowEditor/WorkflowEditor';
 import { saveWorkflow as apiSaveWorkflow, loadWorkflow as apiLoadWorkflow, createWorkflow as apiCreateWorkflow } from '../api/workflowApi';
 
+// 定义 Workflow 接口，与 API 返回的数据结构一致
 interface Workflow {
     id: number;
     name: string;
@@ -9,6 +10,7 @@ interface Workflow {
     steps: string[];
 }
 
+// 定义 WorkflowData 接口，表示工作流数据
 interface WorkflowData {
     canvasItems: CanvasItem[];
     connections: Connection[];
@@ -24,19 +26,24 @@ export const saveWorkflow = async (
 ): Promise<string | null> => {
     setLoading(true);
     try {
+        // 转换 connections 格式以匹配 API 期望的结构
         const transformedConnections = connections.map(conn => ({
             source: conn.sourceItemId,
+            sourcePortId: conn.sourcePortId,
             target: conn.targetItemId,
+            targetPortId: conn.targetPortId,
         }));
         const workflowData = { canvasItems, connections: transformedConnections };
         console.log("Saving workflow data:", workflowData);
 
         if (workflowId === null) {
+            // 如果没有 workflowId，则创建新工作流
             const newWorkflow = await apiCreateWorkflow({ name: "Unnamed Workflow", description: "", steps: [] });
             const savedWorkflowData = await apiSaveWorkflow(Number(newWorkflow.id.toString()), workflowData);
             console.log('Workflow created and saved successfully:', savedWorkflowData);
             return newWorkflow.id.toString();
         } else {
+            // 如果有 workflowId，则更新现有工作流
             const savedWorkflowData = await apiSaveWorkflow(Number(workflowId), workflowData);
             console.log('Workflow saved successfully:', savedWorkflowData);
             return workflowId;
@@ -67,12 +74,14 @@ export const loadWorkflow = async (
             setError('Workflow data not found.');
             return null;
         }
-        const transformedConnections = workflowData.connections.map((conn: any) => ({
+        // 转换 API 返回的 connections 格式
+        const transformedConnections: Connection[] = workflowData.connections.map((conn: any) => ({
             sourceItemId: conn.source,
             sourcePortId: conn.sourcePortId || 'output-1',
             targetItemId: conn.target,
             targetPortId: conn.targetPortId || 'input-1',
         }));
+        // 过滤掉无效的连接（确保 source 和 target 对应的 canvasItems 存在）
         const validConnections = transformedConnections.filter((conn: Connection) => {
             return (
                 workflowData.canvasItems.some(item => item.id === conn.sourceItemId) &&
@@ -90,7 +99,7 @@ export const loadWorkflow = async (
     }
 };
 
-// 新增的 createWorkflow 函数
+// 创建新工作流
 export const createWorkflow = async (
     workflowData: { name: string; description: string; steps: string[] },
     setLoading: (loading: boolean) => void,
@@ -108,9 +117,11 @@ export const createWorkflow = async (
     } finally {
         setLoading(false);
     }
-};
+}; // 补全缺失的闭合大括号
 
+// 获取 CanvasItem 的位置
 export const getItemPosition = (canvasItems: CanvasItem[], id: string) => {
     const item = canvasItems.find((i) => i.id === id);
-    return item ? { left: item.left, top: item.top } : { left: 0, top: 0 };
+    // 使用 position.x 和 position.y 代替 left 和 top
+    return item ? { left: item.position.x, top: item.position.y } : { left: 0, top: 0 };
 };
