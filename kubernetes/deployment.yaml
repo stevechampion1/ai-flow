@@ -1,0 +1,33 @@
+# kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-flow-backend-deployment # Deployment 名称，自定义，全局唯一
+  labels:
+    app: ai-flow-backend # 应用标签，用于 Service 和其他 Kubernetes 对象选择 Pods
+spec:
+  replicas: 1 # 副本数量，默认为 1 个 Pod 实例
+  selector: # 选择器，Deployment 管理哪些 Pods
+    matchLabels:
+      app: ai-flow-backend # 匹配具有 app: ai-flow-backend 标签的 Pods
+  template: # Pod 模板，定义 Pod 的规格
+    metadata:
+      labels:
+        app: ai-flow-backend # Pod 标签，与 selector.matchLabels 匹配
+    spec:
+      containers: # 容器列表 (当前 Deployment 只定义一个容器)
+        - name: ai-flow-backend-container # 容器名称，自定义，Pod 内唯一
+          image: ai-flow-backend # 使用之前构建的 Docker 镜像名称 (ai-flow-backend)
+          ports:
+            - containerPort: 8000 # 容器内部监听的端口，与 FastAPI 应用监听的端口一致
+          env: # 环境变量
+            - name: DATABASE_URL # 数据库连接 URL 环境变量
+              value: "postgresql://aiflow:aiflow_password@db:5432/aiflow_db" #  !!!  注意:  这里使用了硬编码的数据库连接信息，生产环境请使用 Secret 或 ConfigMap  !!!
+            - name: REDIS_URL # Redis 连接 URL 环境变量
+              value: "redis://redis:6379/0" #  !!!  注意:  这里使用了硬编码的 Redis 连接信息，生产环境请使用 ConfigMap  !!!
+            - name: OPENAI_API_KEY # OpenAI API 密钥环境变量
+              valueFrom: #  !!!  生产环境强烈建议使用 Kubernetes Secret 安全管理 API 密钥  !!!
+                secretKeyRef:
+                  name: openai-api-secret #  !!!  Secret 名称 (您需要手动创建名为 openai-api-secret 的 Secret 对象)  !!!
+                  key: api-key #  !!!  Secret 中存储 API 密钥的 key 名称 (假设 key 名称为 api-key)  !!!
+              # value: ${OPENAI_API_KEY} #  !!!  如果您仍然想使用环境变量进行本地测试，可以取消注释这行，并注释掉 valueFrom 部分  !!!

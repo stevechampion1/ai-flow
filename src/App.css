@@ -1,0 +1,19 @@
+/* src/App.css */
+.app-container {
+    display: flex;
+    height: 100vh; /* 让应用占满整个视口高度 */
+    overflow: hidden;/*防止出现滚动条*/
+  }
+
+  .sidebar {
+    width: 250px; /* 设置侧边栏宽度, 可以自行调整 */
+    border-right: 1px solid #ccc; /* 添加右边框 */
+    overflow-y: auto; /* 如果侧边栏内容超出高度，允许滚动 */
+    padding: 10px;
+  }
+
+  .main-content {
+    flex: 1; /* 让主内容区域占据剩余空间 */
+    overflow-y: auto; /* 如果内容超出高度，允许滚动 */
+    padding:10px;
+  }

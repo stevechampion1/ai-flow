@@ -1,0 +1,53 @@
+// backend/tsconfig.json (最终修正：指定正确的 rootDir 和 outDir)
+{
+    "compilerOptions": {
+        // --- Target and Module Settings ---
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+
+        // --- Type Checking Strictness ---
+        "strict": true,
+
+        // --- Module Interoperability ---
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+
+        // --- Project Structure & Output ---
+        "outDir": "../dist/backend", // <--- 关键修正：输出目录，保持相对结构
+        "rootDir": "../",          // <--- 关键修正：根目录是项目根，包含 types 和 backend
+
+        // --- File Handling ---
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+
+        // --- Emit Options ---
+        "noEmit": false,             // <--- 保持 false，允许生成 JS 文件
+        "sourceMap": true,           // <--- 推荐为调试生成 source map
+
+        // --- Import Settings (NodeNext Needs .js) ---
+        // "allowImportingTsExtensions": false, // 移除或保持 false
+        "resolveJsonModule": true
+    },
+    "ts-node": {
+        // 配置 ts-node 以配合编译输出
+        "require": ["tsconfig-paths/register"], // <--- 添加：如果使用了路径别名 (虽然这里没用，但有时有用)
+        "esm": true,
+        "transpileOnly": true, // 保持 true，让 tsc 做类型检查
+        // 指向编译后的 JS 文件，相对于 backend 目录
+        // "compilerOptions": {
+        //     "module": "CommonJS" // ts-node 内部可能仍需要 CommonJS 才能正确处理某些情况
+        // } // 暂时不修改 ts-node 内部的 module
+    },
+    "include": [
+        // 相对于 tsconfig.json 文件 (即 backend 目录)
+        "./**/*.ts",           // 包含 backend 下的所有 .ts 文件
+        "../types/**/*.ts"   // 包含根目录下 types 文件夹中的所有 .ts 文件
+                             // 现在 rootDir 是 '../'，这个路径在 rootDir 内了
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",                // 排除根目录下的 dist (如果存在)
+        "../dist"              // 排除新的输出目录
+    ]
+}
